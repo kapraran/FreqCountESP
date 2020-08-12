@@ -5,6 +5,7 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Usage](#usage)
+- [License](#license)
 
 ## About <a name="about"></a>
 
@@ -21,3 +22,9 @@ Use the arduino library manager or download the latest realease and import it as
 ## Usage <a name="usage"></a>
 
 Add notes about how to use the system.
+
+## License <a name="license"></a>
+
+[MIT License](https://github.com/kapraran/FreqCountESP/blob/master/LICENSE)
+
+Copyright (c) 2020 [Nikos Kapraras](https://kapraran.dev)
