@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-void IRAM_ATTR onCount();
+void IRAM_ATTR onRise();
 void IRAM_ATTR onTimer();
 
 class _FreqCountESP
@@ -18,13 +18,12 @@ public:
   static volatile uint32_t sCount;
   static volatile uint32_t sFrequency;
 
-  static portMUX_TYPE sCountMux;
-  static portMUX_TYPE sTimerMux;
+  static portMUX_TYPE sMux;
 
   _FreqCountESP();
   ~_FreqCountESP();
 
-  void begin(uint8_t pin, uint16_t timerMs);
+  void begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId=0, uint8_t mode=INPUT);
   uint32_t read();
   uint8_t available();
   void end();

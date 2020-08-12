@@ -4,23 +4,22 @@ volatile uint8_t _FreqCountESP::sIsFrequencyReady = false;
 volatile uint32_t _FreqCountESP::sCount = 0;
 volatile uint32_t _FreqCountESP::sFrequency = 0;
 
-portMUX_TYPE _FreqCountESP::sCountMux = portMUX_INITIALIZER_UNLOCKED;
-portMUX_TYPE _FreqCountESP::sTimerMux = portMUX_INITIALIZER_UNLOCKED;
+portMUX_TYPE _FreqCountESP::sMux = portMUX_INITIALIZER_UNLOCKED;
 
-void IRAM_ATTR onCount()
+void IRAM_ATTR onRise()
 {
-  portENTER_CRITICAL_ISR(&_FreqCountESP::sCountMux);
+  portENTER_CRITICAL_ISR(&_FreqCountESP::sMux);
   _FreqCountESP::sCount++;
-  portEXIT_CRITICAL_ISR(&_FreqCountESP::sCountMux);
+  portEXIT_CRITICAL_ISR(&_FreqCountESP::sMux);
 }
 
 void IRAM_ATTR onTimer()
 {
-  portENTER_CRITICAL_ISR(&_FreqCountESP::sTimerMux);
+  portENTER_CRITICAL_ISR(&_FreqCountESP::sMux);
   _FreqCountESP::sFrequency = _FreqCountESP::sCount;
   _FreqCountESP::sCount = 0;
   _FreqCountESP::sIsFrequencyReady = true;
-  portEXIT_CRITICAL_ISR(&_FreqCountESP::sTimerMux);
+  portEXIT_CRITICAL_ISR(&_FreqCountESP::sMux);
 }
 
 _FreqCountESP::_FreqCountESP()
@@ -33,7 +32,7 @@ _FreqCountESP::~_FreqCountESP()
   end();
 }
 
-void _FreqCountESP::begin(uint8_t pin, uint16_t timerMs)
+void _FreqCountESP::begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId, uint8_t mode)
 {
   mPin = pin;
   mTimerMs = timerMs;
@@ -41,14 +40,14 @@ void _FreqCountESP::begin(uint8_t pin, uint16_t timerMs)
   sCount = 0;
   sFrequency = 0;
 
-  pinMode(mPin, INPUT_PULLUP);
+  pinMode(mPin, mode);
 
-  attachInterrupt(mPin, &onCount, RISING);
+  attachInterrupt(mPin, &onRise, RISING);
 
-  // timer = timerBegin(0, 80, true);
-  // timerAttachInterrupt(timer, &onTimer, true);
-  // timerAlarmWrite(timer, 1000000, true);
-  // timerAlarmEnable(timer);
+  mTimer = timerBegin(hwTimerId, 80, true);
+  timerAttachInterrupt(mTimer, &onTimer, true);
+  timerAlarmWrite(mTimer, mTimerMs * 1000, true);
+  timerAlarmEnable(mTimer);
 }
 
 uint32_t _FreqCountESP::read()
@@ -64,7 +63,11 @@ uint8_t _FreqCountESP::available()
 
 void _FreqCountESP::end()
 {
+  detachInterrupt(mPin);
 
+  timerAlarmDisable(mTimer);
+  timerDetachInterrupt(mTimer);
+  timerEnd(mTimer);
 }
 
 _FreqCountESP FreqCountESP;

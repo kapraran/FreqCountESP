@@ -1,6 +1,6 @@
 #include "FreqCountESP.h"
 
-int inputPin = 24;
+int inputPin = 14;
 int timerMs = 1000;
 
 void setup()
