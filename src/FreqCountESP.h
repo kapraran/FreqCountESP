@@ -1,5 +1,5 @@
-#ifndef FreqCountESP_h
-#define FreqCountESP_h
+#ifndef kapraran_FreqCountESP_h
+#define kapraran_FreqCountESP_h
 
 #include <Arduino.h>
 
@@ -23,7 +23,7 @@ public:
   _FreqCountESP();
   ~_FreqCountESP();
 
-  void begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId=0, uint8_t mode=INPUT);
+  void begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId = 0, uint8_t mode = INPUT);
   uint32_t read();
   uint8_t available();
   void end();
@@ -31,4 +31,4 @@ public:
 
 extern _FreqCountESP FreqCountESP;
 
-#endif // FreqCountESP_h
+#endif // kapraran_FreqCountESP_h
