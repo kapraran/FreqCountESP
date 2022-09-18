@@ -5,6 +5,8 @@ volatile uint32_t _FreqCountESP::sCount = 0;
 volatile uint32_t _FreqCountESP::sFrequency = 0;
 
 #ifdef USE_PCNT  // Use ESP32 hardware pulse counter instead of per-pulse ISR.
+// Thanks to jgustavoam and Rui Viana for tips gleaned from
+// https://www.esp32.com/viewtopic.php?t=17018
 
 volatile uint32_t _FreqCountESP::sLastPcnt = 0;
 
