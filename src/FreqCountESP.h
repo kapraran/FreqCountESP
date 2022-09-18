@@ -3,6 +3,15 @@
 
 #include <Arduino.h>
 
+#define USE_PCNT  // Use ESP32 hardware pulse counter instead of per-pulse ISR.
+
+#ifdef USE_PCNT
+extern "C" {
+  #include "soc/pcnt_struct.h"
+}
+#include <driver/pcnt.h>
+#endif
+
 void IRAM_ATTR onRise();
 void IRAM_ATTR onTimer();
 
@@ -12,11 +21,17 @@ private:
   uint8_t mPin;
   uint16_t mTimerMs;
   hw_timer_t *mTimer;
+#ifdef USE_PCNT
+  pcnt_isr_handle_t mIsrHandle;
+#endif
 
 public:
   static volatile uint8_t sIsFrequencyReady;
   static volatile uint32_t sCount;
   static volatile uint32_t sFrequency;
+#ifdef USE_PCNT
+  static volatile uint32_t sLastPcnt;
+#endif
 
   static portMUX_TYPE sMux;
 
