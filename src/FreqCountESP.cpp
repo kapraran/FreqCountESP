@@ -120,9 +120,8 @@ void _FreqCountESP::_begin(uint8_t freqPin, uint8_t freqPinIOMode)
 #else  // !USE_PCNT
   attachInterrupt(mPin, &onRise, RISING);
 #endif  // USE_PCNT
-  if(mTriggerPin) {
-  } else {
-    // Start internal timer.
+  if(mTriggerPin == 0) {
+    // Not external trigger, start internal timer.
     timerAlarmEnable(mTimer);
   }
 }
@@ -146,7 +145,7 @@ void _FreqCountESP::beginExtTrig(uint8_t freqPin, uint8_t extTriggerPin, uint8_t
   assert(extTriggerPin > 0);
   mTriggerPin = extTriggerPin;
   pinMode(mTriggerPin, INPUT);
-  attachInterrupt(mTriggerPin, &onTimer, extTriggerMode);
+  attachInterrupt(digitalPinToInterrupt(mTriggerPin), &onTimer, extTriggerMode);
 
   _begin(freqPin, freqPinIOMode);
 }
@@ -169,10 +168,13 @@ void _FreqCountESP::end()
 #else 
   detachInterrupt(mPin);
 #endif
-
-  timerAlarmDisable(mTimer);
-  timerDetachInterrupt(mTimer);
-  timerEnd(mTimer);
+  if(mTriggerPin == 0) {
+    timerAlarmDisable(mTimer);
+    timerDetachInterrupt(mTimer);
+    timerEnd(mTimer);
+  } else {
+    detachInterrupt(digitalPinToInterrupt(mTriggerPin));
+  }
 }
 
 _FreqCountESP FreqCountESP;
