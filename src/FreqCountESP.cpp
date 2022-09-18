@@ -104,15 +104,15 @@ _FreqCountESP::~_FreqCountESP()
   end();
 }
 
-void _FreqCountESP::begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId, uint8_t mode)
+void _FreqCountESP::_begin(uint8_t freqPin, uint8_t freqPinIOMode)
 {
-  mPin = pin;
-  mTimerMs = timerMs;
+  // Configure counting on frequency input pin.
+  mPin = freqPin;
   sIsFrequencyReady = false;
   sCount = 0;
   sFrequency = 0;
 
-  pinMode(mPin, mode);
+  pinMode(mPin, freqPinIOMode);
 
 #ifdef USE_PCNT
   _FreqCountESP::sLastPcnt = 0;
@@ -120,11 +120,35 @@ void _FreqCountESP::begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId, uint
 #else  // !USE_PCNT
   attachInterrupt(mPin, &onRise, RISING);
 #endif  // USE_PCNT
+  if(mTriggerPin) {
+  } else {
+    // Start internal timer.
+    timerAlarmEnable(mTimer);
+  }
+}
 
+void _FreqCountESP::begin(uint8_t freqPin, uint16_t timerMs, uint8_t hwTimerId, uint8_t freqPinIOMode)
+{
+  // Count frequency using internal timer.
+  // mTriggerPin == 0 means we're using internal timer.
+  mTriggerPin = 0;
   mTimer = timerBegin(hwTimerId, 80, true);
   timerAttachInterrupt(mTimer, &onTimer, true);
-  timerAlarmWrite(mTimer, mTimerMs * 1000, true);
-  timerAlarmEnable(mTimer);
+  timerAlarmWrite(mTimer, timerMs * 1000, true);
+
+  _begin(freqPin, freqPinIOMode);
+}
+
+void _FreqCountESP::beginExtTrig(uint8_t freqPin, uint8_t extTriggerPin, uint8_t freqPinIOMode, uint8_t extTriggerMode)
+{
+  // Count frequency between events from an external trigger input.
+  // mTriggerPin == 0 means we're using internal timer.
+  assert(extTriggerPin > 0);
+  mTriggerPin = extTriggerPin;
+  pinMode(mTriggerPin, INPUT);
+  attachInterrupt(mTriggerPin, &onTimer, extTriggerMode);
+
+  _begin(freqPin, freqPinIOMode);
 }
 
 uint32_t _FreqCountESP::read()

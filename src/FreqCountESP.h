@@ -19,11 +19,12 @@ class _FreqCountESP
 {
 private:
   uint8_t mPin;
-  uint16_t mTimerMs;
+  uint8_t mTriggerPin;
   hw_timer_t *mTimer;
 #ifdef USE_PCNT
   pcnt_isr_handle_t mIsrHandle;
 #endif
+  void _begin(uint8_t freqPin, uint8_t freqPinIOMode);
 
 public:
   static volatile uint8_t sIsFrequencyReady;
@@ -38,7 +39,10 @@ public:
   _FreqCountESP();
   ~_FreqCountESP();
 
-  void begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId = 0, uint8_t mode = INPUT);
+  // Frequency counter using internal interval timer.
+  void begin(uint8_t pin, uint16_t timerMs, uint8_t hwTimerId = 0, uint8_t freqPinIOMode = INPUT);
+  // Frequency counter using external trigger pulse input.
+    void beginExtTrig(uint8_t pin, uint8_t extTriggerPin, uint8_t freqPinIOMode = INPUT, uint8_t extTriggerMode = RISING);
   uint32_t read();
   uint8_t available();
   void end();
