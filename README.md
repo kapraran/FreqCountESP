@@ -72,6 +72,8 @@ void loop()
 
 ## Credits <a name="credits"></a>
 
+* Big thanks to [@dpwe](https://github.com/dpwe) for his contributions https://github.com/kapraran/FreqCountESP/pull/5
+
 * [FreqCount library for Arduino & Teensy boards](https://www.pjrc.com/teensy/td_libs_FreqCount.html)
 * [Frequency Icon](https://www.flaticon.com/free-icon/pulse_597841?term=frequency&page=1&position=2)
 
